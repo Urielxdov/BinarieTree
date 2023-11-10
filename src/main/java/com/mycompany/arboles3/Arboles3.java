@@ -18,7 +18,9 @@ public class Arboles3 {
         }
 
         arbol.eleminarNodo(8);
-        System.out.println(arbol.buscarNodo(30));
+        System.out.println("nodo " + arbol.buscarNodo(7));
+
+
         System.out.println("raiz: " + arbol.raiz());
         System.out.println("nivel: " + arbol.altura());
         System.out.println(arbol);

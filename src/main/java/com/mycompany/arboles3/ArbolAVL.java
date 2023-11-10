@@ -131,8 +131,9 @@ public class ArbolAVL<T extends Integer> {
         manejarEliminaciones(nodoArbolEliminar);
     }
 
-    public boolean buscarNodo(T valor) {
-        return buscarNodo(valor, this.raiz) != null;
+    public NodoArbol<T> buscarNodo(T valor) {
+        NodoArbol<T> nodoRetorno = buscarNodo(valor, this.raiz);
+        return nodoRetorno;
     }
 
     private NodoArbol<T> buscarNodo(T valor, NodoArbol<T> nodo) {
@@ -236,7 +237,7 @@ public class ArbolAVL<T extends Integer> {
             raiz = nuevoPadre;
         } else {
             raiz = null; // No hay mas elementos en el arbol
-        }
+        }                                                                                                                                                         
     }
 
     /**
@@ -256,9 +257,9 @@ public class ArbolAVL<T extends Integer> {
             nodoPadre.der.padre = nodoPadre;
             // Actualizamos la referencia del padre del antiguo padre
             if (nodoPadre.padre.dato < nodoPadre.dato) {
-                nodoPadre.padre.der = nodoPadre;
+                nodoPadre.padre.der = nuevoPadre;
             } else {
-                nodoPadre.padre.izq = nodoPadre;
+                nodoPadre.padre.izq = nuevoPadre;
             }
             // Eliminando al viejo padre
             nodoPadre = null;
@@ -266,28 +267,21 @@ public class ArbolAVL<T extends Integer> {
             eliminarRaiz(); // Es la raiz
             return;
         }
+        System.out.println(nuevoPadre.padre.der);
         balancearRecorrido(nuevoPadre.izq); // Se realizo esto para eliminar al padre
     }
 
     private NodoArbol<T> quitarMayor(NodoArbol<T> nodo) { // No estas teniendo en cuenta la rama izquierda
         if (nodo.der == null) {
             nodo.padre.der = nodo.izq;
-            nodo.izq.padre = nodo.padre; // Esto maneja posibles hojas izquierdas en el nodo a intercambiar
+            if(nodo.izq != null)
+                nodo.izq.padre = nodo.padre; // Esto maneja posibles hojas izquierdas en el nodo a intercambiar
             nodo.padre = null;
             return nodo; // Nodo sin referencias
         }
         return quitarMayor(nodo.der); // No manejas el posible caso de que no exista nodo derecha
     }
 
-    private NodoArbol<T> quitaMenor(NodoArbol<T> nodo) {
-        if (nodo.izq == null) {
-            nodo.padre.izq = nodo.der;
-            nodo.izq.padre = nodo.padre;
-            nodo.padre = null;
-            return nodo;
-        }
-        return quitaMenor(nodo.izq);
-    }
 
     private void balancearRecorrido(NodoArbol<T> nodo) {
         NodoArbol<T> NodoArbolctual = nodo;
