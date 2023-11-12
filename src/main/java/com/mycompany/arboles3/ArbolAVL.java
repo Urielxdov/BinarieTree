@@ -59,6 +59,7 @@ public class ArbolAVL<T extends Integer> {
 
     private int altura(NodoArbol<T> r) {
         if (r != null) {
+            System.out.println(r.dato);
             return 1 + Math.max(altura(r.izq), altura(r.der));
         } else {
             return 0;
@@ -120,10 +121,8 @@ public class ArbolAVL<T extends Integer> {
                 }
             }
 
-            // System.out.print(r+" -p--> ");
             r = r.padre;
         }
-        System.out.println("");
     }
 
     public void eleminarNodo(T valor) {
@@ -163,7 +162,7 @@ public class ArbolAVL<T extends Integer> {
                 eliminarConDosHijos(nodo);
                 break;
         }
-        balancearRecorrido(nodo);
+        balancearRecorrido(nodo); // Posible error
     }
 
     /**
@@ -179,57 +178,58 @@ public class ArbolAVL<T extends Integer> {
         return hijos;
     }
 
-    // Falta actualizar bien los nodos eliminados, no cambia su valor e igual
-    // elimina al que se deseaba cambiar
-
-    private void eliminarNodoHoja(NodoArbol<T> nodo) {
+    private void eliminarNodoHoja(NodoArbol<T> nodo) { // Funciona
         if (nodo.padre == null) { // En este caso el nodo era la raiz
             nodo = null;
             this.raiz = null;
             return;
         }
-        if (nodo.padre.dato < nodo.dato) {
+        if (nodo.padre.dato < nodo.dato) { // Valor padre menor que valor hijo
             nodo.padre.der = null;
-        } else {
+        } else { // Valor padre mayor que valor hijo
             nodo.padre.izq = null;
         }
-        nodo.padre = null;
-        nodo = null;
-    }
+        nodo.padre = null; // Eliminamos la referencia al padre
+        nodo = null; // Eliminamos el nodo
+    } // eliminarNodoHoja
 
+    // Posiblemente el error se debe a que usas una copia, intenta no usandola
     private void eliminarConUnHijo(NodoArbol<T> nodoPadre) {
         NodoArbol<T> hijo; // Variable temporal de hijo que remplaza al padre
-        if (nodoPadre.der != null) {
-            hijo = nodoPadre.der;
-            hijo.padre = nodoPadre.padre;
+        if (nodoPadre.der != null) { // El nodo padre posee hijo derecho?
+            hijo = nodoPadre.der; // Tomamos la referencia del hijo
+            hijo.padre = nodoPadre.padre; // Actualizamos el padre del hijo hacia el abuelo
 
-            if (nodoPadre.padre != null) {
-                if (nodoPadre.padre.izq == nodoPadre) {
-                    nodoPadre.padre.izq = hijo;
+            if (nodoPadre.padre != null) { // El nodo padre posee padre
+                if (nodoPadre.padre.izq == nodoPadre) { // Validar la rama en la que se encuentra el padre
+                    nodoPadre.padre.izq = hijo; // Actualizamos el hijo del abuelo en la izquierda
                 } else {
-                    nodoPadre.padre.der = hijo;
+                    nodoPadre.padre.der = hijo; // Actualizamos el hijo del abuelo en la derecha
                 }
-            } else {
-                this.raiz = hijo;
+            } else { // Si no posee padre entonces es la raiz
+                this.raiz = hijo; // Redefinimos la raiz
             }
-        } else {
-            hijo = nodoPadre.izq;
-            hijo.padre = nodoPadre.padre;
+        } else { // El nodo padre posee el hijo en el lado izquierdo
+            hijo = nodoPadre.izq; // Copia del hijo
+            hijo.padre = nodoPadre.padre; // Actualizamos la referencia padre hacia el abuelo
 
-            if (nodoPadre.padre != null) {
-                if (nodoPadre.padre.izq == nodoPadre) {
-                    nodoPadre.padre.izq = hijo;
+            if (nodoPadre.padre != null) { // Se posee abuelo
+                if (nodoPadre.padre.izq == nodoPadre) { // Validamos la ubicacion del padre
+                    nodoPadre.padre.izq = hijo; // Actualizamos la rama izquierda del abuelo
                 } else {
-                    nodoPadre.padre.der = hijo;
+                    nodoPadre.padre.der = hijo; // Actualizamos la rama derecha del abuelo
                 }
-            } else {
-                this.raiz = hijo;
+            } else { // Si no posee padre es la raiz
+                this.raiz = hijo; // Redefinimos la raiz
             }
         }
-    }
 
-    private void eliminarRaiz() {
-        NodoArbol<T> nuevoPadre = quitarMayor(raiz.izq);
+        //Eliminamos las ultimas referencias del padre
+        nodoPadre.padre = null;
+        nodoPadre = null;
+    } // eliminarConUnHijo
+
+    private void eliminarRaiz(NodoArbol<T> nuevoPadre) { 
         if (nuevoPadre != null) {
             nuevoPadre.padre = null;
             nuevoPadre.izq = raiz.izq;
@@ -237,7 +237,7 @@ public class ArbolAVL<T extends Integer> {
             raiz = nuevoPadre;
         } else {
             raiz = null; // No hay mas elementos en el arbol
-        }                                                                                                                                                         
+        }
     }
 
     /**
@@ -246,8 +246,8 @@ public class ArbolAVL<T extends Integer> {
      * @param nodoPadre
      */
     private void eliminarConDosHijos(NodoArbol<T> nodoPadre) {
-        NodoArbol<T> nuevoPadre = quitarMayor(nodoPadre.izq);
-        if (nodoPadre.padre != null) {
+        NodoArbol<T> nuevoPadre = quitarMayor(nodoPadre.izq); // Este sera el sustituto del padre
+        if (nodoPadre.padre != null) { // Si posee padre no es la raiz
             // Actualizando referrencias del nuevoPadre
             nuevoPadre.der = nodoPadre.der;
             nuevoPadre.izq = nodoPadre.izq;
@@ -263,33 +263,65 @@ public class ArbolAVL<T extends Integer> {
             }
             // Eliminando al viejo padre
             nodoPadre = null;
-        } else {
-            eliminarRaiz(); // Es la raiz
-            return;
+        } else { // No posee padre por ende es la raiz
+            eliminarRaiz( nuevoPadre ); // Actualizamos con el caso especial
         }
-        System.out.println(nuevoPadre.padre.der);
-        balancearRecorrido(nuevoPadre.izq); // Se realizo esto para eliminar al padre
+        balancearRecorrido(nuevoPadre.izq); // Se balancea el rastro por el cual el se tomo el sucesor del padre
     }
 
     private NodoArbol<T> quitarMayor(NodoArbol<T> nodo) { // No estas teniendo en cuenta la rama izquierda
-        if (nodo.der == null) {
-            nodo.padre.der = nodo.izq;
-            if(nodo.izq != null)
+        if (nodo.der == null) { // Si no existe un hijo a la derecha
+            nodo.padre.der = nodo.izq; // En caso de que el hijo posea hijos
+            if (nodo.padre.der != null)
                 nodo.izq.padre = nodo.padre; // Esto maneja posibles hojas izquierdas en el nodo a intercambiar
-            nodo.padre = null;
+            // balancearRecorrido(nodo.izq); // Balanceamos lo que hayamos cambiado
+            nodo.padre = null; // Eliminamos el padre del nodo
             return nodo; // Nodo sin referencias
         }
-        return quitarMayor(nodo.der); // No manejas el posible caso de que no exista nodo derecha
+        return quitarMayor(nodo.der); // Se continua recorriendo hacia la derecha
     }
 
-
-    private void balancearRecorrido(NodoArbol<T> nodo) {
-        NodoArbol<T> NodoArbolctual = nodo;
+    private void balancearRecorrido(NodoArbol<T> nodo) { // Se detecto el error
+        NodoArbol<T> NodoArbolctual = nodo; // Este nodo se actualizara
         while (NodoArbolctual != null) {
             balancear(NodoArbolctual);
             NodoArbolctual = NodoArbolctual.padre;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Rotaciones
 
@@ -326,10 +358,15 @@ public class ArbolAVL<T extends Integer> {
     }
 
     /**
-     * El nodo rrecibido es tratado como abol independientemenre de donde se encuentre
-     * En este caso el nodo hijo de la rama derecha de la raiz subira a la raiz dejandole sus hijos
-     * de la rama izquierda al padre en la rama derecha, posteriormente el hijo que subio deja al padrre
-     * como hijo de la rrama derecha. Posteriormente se actualiza cada nodo afectado con nuevas referencias
+     * El nodo rrecibido es tratado como abol independientemenre de donde se
+     * encuentre
+     * En este caso el nodo hijo de la rama derecha de la raiz subira a la raiz
+     * dejandole sus hijos
+     * de la rama izquierda al padre en la rama derecha, posteriormente el hijo que
+     * subio deja al padrre
+     * como hijo de la rrama derecha. Posteriormente se actualiza cada nodo afectado
+     * con nuevas referencias
+     * 
      * @param nodo raiz del arbol
      */
     private void rotacionDD(NodoArbol<T> nodo) { // Funciona
@@ -354,9 +391,12 @@ public class ArbolAVL<T extends Integer> {
 
     /**
      * Todo nodo recibido es tratado como un arbol
-     * En este caso para lograr la rotacion al hijo izquierdo de la raiz le aplicamos una rotacion
-     * derecha-derecha, despues de esto el hijo queda balanceado y al padre junto al hijo o nuevo hijo
+     * En este caso para lograr la rotacion al hijo izquierdo de la raiz le
+     * aplicamos una rotacion
+     * derecha-derecha, despues de esto el hijo queda balanceado y al padre junto al
+     * hijo o nuevo hijo
      * le aplicamos una rotacion izquierda-izquierda
+     * 
      * @param nodo raiz del arbol
      */
     private void rotacionID(NodoArbol<T> nodo) { // Funciona
@@ -366,9 +406,12 @@ public class ArbolAVL<T extends Integer> {
 
     /**
      * Todo nodo recibido es tratado como un arbol
-     * En este caso para lograr la rotacion al hijo derecho de la raiz le aplicamos una rotacion
-     * izquierda-izquierda, despues de esto el hijo queda balanceado y al padre junto al hijo o nuevo hijo
+     * En este caso para lograr la rotacion al hijo derecho de la raiz le aplicamos
+     * una rotacion
+     * izquierda-izquierda, despues de esto el hijo queda balanceado y al padre
+     * junto al hijo o nuevo hijo
      * le aplicamos una rotacion derecha-derecha
+     * 
      * @param nodo
      */
     private void rotacionDI(NodoArbol<T> nodo) { // Funciona

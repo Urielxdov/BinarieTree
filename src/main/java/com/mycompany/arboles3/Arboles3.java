@@ -13,11 +13,12 @@ public class Arboles3 {
     public static void main(String[] args) {
         ArbolAVL<Integer> arbol = new ArbolAVL<>();
         
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 100; i++) {
             arbol.add(i);
         }
 
-        arbol.eleminarNodo(8);
+        arbol.eleminarNodo(16);
+
         System.out.println("nodo " + arbol.buscarNodo(7));
 
 
