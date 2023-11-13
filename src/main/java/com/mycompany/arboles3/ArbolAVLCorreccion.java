@@ -141,7 +141,7 @@ public class ArbolAVLCorreccion <T extends Integer> {
                 }
             }
 
-            // r = r.padre;
+            r = r.padre;
         }
     }
 
@@ -210,11 +210,12 @@ public class ArbolAVLCorreccion <T extends Integer> {
                 nodoEliminado = eliminarConUnHijo(nodo);
                 break;
             case 2:
-                System.out.println("Dos hijos " + nodo.dato);
                 nodoEliminado = eliminarConDosHijos(nodo);
-                System.out.println("Aqui el 4 debio no salir " + nodoEliminado.dato);
                 break;
+            default:
+                nodoEliminado = null;
         }
+        balancear(nodoEliminado);
     }
 
     /**
@@ -269,21 +270,24 @@ public class ArbolAVLCorreccion <T extends Integer> {
      * Se sustituyen las referencias sobre la raiz del arbol para pasarlas al sucesor
      * @param nuevoPadre Sucesor de la raiz
      */
-    private void eliminarRaiz(NodoArbol<T> nuevoPadre) { 
+    private NodoArbol<T> eliminarRaiz(NodoArbol<T> nuevoPadre) { 
         if (nuevoPadre != null) {
             // Damos las referencias de la anterior raiz a la nueva
-            nuevoPadre.izq = this.raiz.izq;
+            if(this.raiz.izq != nuevoPadre) nuevoPadre.izq = this.raiz.izq;
             nuevoPadre.der = this.raiz.der;
 
             // Actualizamos las referencias de la anterior raiz a la nueva
-            this.raiz.izq.padre = nuevoPadre;
-            this.raiz.der.padre = nuevoPadre;
+            if(this.raiz.izq != null) this.raiz.izq.padre = nuevoPadre;
+            if(this.raiz.der != null) this.raiz.der.padre = nuevoPadre;
+            
             // Aseguramos la eliminacion y cambio de raices
             this.raiz = null;
+            nuevoPadre.padre = null;
             this.raiz = nuevoPadre;
         } else {
             this.raiz = null; // No hay mas elementos en el arbol
         }
+        return raiz;
     }
 
 
@@ -303,8 +307,8 @@ public class ArbolAVLCorreccion <T extends Integer> {
             nuevoPadre.izq = nodoPadre.izq;
             nuevoPadre.padre = nodoPadre.padre;
 
-            nodoPadre.izq.padre = nuevoPadre;
-            nodoPadre.der.padre = nuevoPadre;
+            if(nodoPadre.izq != null) nodoPadre.izq.padre = nuevoPadre;
+            if(nodoPadre.der != null) nodoPadre.der.padre = nuevoPadre;
 
             if(nodoPadre.padre.dato < nodoPadre.dato) {
                 nodoPadre.padre.der = nuevoPadre;
@@ -313,11 +317,11 @@ public class ArbolAVLCorreccion <T extends Integer> {
             }
             nodoPadre = null;
         } else {
-            eliminarRaiz( nuevoPadre );
+            nuevoPadre = eliminarRaiz( nuevoPadre );
         }
         balancear(nuevoPadre.izq);
 
-        System.out.println("Termina la elimicacion \n\n\n\n");
+        System.out.println(nuevoPadre + "Termina la elimicacion  \n\n\n\n");
         return nuevoPadre;
     }
 
@@ -329,10 +333,14 @@ public class ArbolAVLCorreccion <T extends Integer> {
      */
     private NodoArbol<T> quitarMayor(NodoArbol<T> nodo) { // No estas teniendo en cuenta la rama izquierda
         if (nodo.der == null) { // Si no existe un hijo a la derecha
-            nodo.padre.der = nodo.izq; // En caso de que el hijo posea hijos
-            if (nodo.padre.der != null)
-                nodo.izq.padre = nodo.padre; // Esto maneja posibles hojas izquierdas en el nodo a intercambiar
-            // balancearRecorrido(nodo.izq); // Balanceamos lo que hayamos cambiado
+            if(nodo.padre.der == nodo){
+                nodo.padre.der = nodo.izq;
+                
+            }; // En caso de que el hijo posea hijos
+
+            if(nodo.padre.izq == nodo) {
+                nodo.padre.izq = nodo.izq;
+            } // En caso de que sea una hoja el nodo a quitar
             nodo.padre = null; // Eliminamos el padre del nodo
             return nodo; // Nodo sin referencias
         }
@@ -452,7 +460,7 @@ public class ArbolAVLCorreccion <T extends Integer> {
     // Metodos de Impresion
     @Override
     public String toString() {
-        return this.inOrden(raiz);
+        return this.inOrden(raiz) + "\n" +this.postOrden(raiz);
     }
 
     private String inOrden(NodoArbol<T> r) {

@@ -13,26 +13,24 @@ public class Arboles3 {
     public static void main(String[] args) {
         ArbolAVLCorreccion<Integer> arbol = new ArbolAVLCorreccion<>();
         
-        for (int i = 1; i <= 10; i++) {
-            arbol.add(i);
-        }
+        arbol.add(40);
+        arbol.add(30);
+        arbol.add(50);
+        arbol.add(20);
+        arbol.add(35);
+        arbol.add(45);
+        arbol.add(55);
+        arbol.add(10);
+        arbol.add(25);
+        arbol.add(32);
+        arbol.add(42);
+        arbol.add(5);
+        arbol.eleminarNodo(55);
+        // arbol.eleminarNodo(32);
+        // arbol.eleminarNodo(40);
+        // arbol.eleminarNodo(30);
 
-
-
-        System.out.println("raiz: " + arbol.getRaiz());
-
-
-        arbol.eleminarNodo(4);
-        System.out.println("raiz: " + arbol.getRaiz());
-
-        arbol.eleminarNodo(7);
-        System.out.println("raiz: " + arbol.getRaiz());
-        System.out.println(arbol.FE(arbol.getRaiz()));
-        System.out.println("nivel: " + arbol.altura());
-        System.out.println(arbol);
-        System.out.println("Comprobando la raiz " + arbol.getRaiz() + " izquierda " + arbol.getRaiz().izq + " derecha " + arbol.getRaiz().der);
-        System.out.println("Izquierda ");
-        arbol.imprimirIzquierda();
+        System.out.println(arbol.getRaiz());
     }
 
 }

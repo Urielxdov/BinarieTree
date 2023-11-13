@@ -13,38 +13,33 @@ public class ArbolAVL<T extends Integer> {
         return raiz;
     }
 
-    public void add(T i) {
-        if (i == null) {
-            throw new IllegalArgumentException("No se permiten valores nulos o vacios");
+    public void add(T val){
+        if(raiz == null){
+            raiz = new NodoArbol<T>(val);
         }
-        if (raiz == null) {
-            raiz = new NodoArbol<T>(i);
-        } else {
-            add(raiz, i);
+        else{
+            add(raiz, val);
         }
     }
-
-    public void add(NodoArbol<T> r, T i) {
-        NodoArbol<T> nuevo = new NodoArbol<T>(i);
-        // agregar un nodo al arbol
-        if (i < r.dato) {// va del lado izquierdo
-            if (r.izq == null) {
-                r.izq = nuevo;
-                // conetar nuevo nodo con su padre
-                r.izq.padre = r;
-                balancear(r.izq);
-            } else {
-                add(r.izq, i);
+    private void add(NodoArbol<T> r, T val){
+        if(val > r.dato){//va a la derecha
+            if (r.der == null){
+                r.der = new NodoArbol<T>(val);
+                r.der.padre = r; //Conectamos el nuevo nodo con su padre
+                balancear(r);
+            } 
+            else{
+                add(r.der, val);
             }
         }
-        if (i > r.dato) {// va del lado derecho
-            if (r.der == null) {
-                r.der = nuevo;
-                // conetar nuevo nodo con su padre
-                r.der.padre = r;
-                balancear(r.der);
-            } else {
-                add(r.der, i);
+        else if(val < r.dato){//va a la izquierda
+            if(r.izq == null){
+                r.izq = new NodoArbol<T>(val);
+                r.izq.padre = r; //Conectamos el nuevo nodo con su padre
+                balancear(r);
+            } 
+            else{
+                add(r.izq, val);
             }
         }
     }
@@ -123,6 +118,7 @@ public class ArbolAVL<T extends Integer> {
             r = r.padre;
         }
     }
+    
 
     public void eleminarNodo(T valor) {
         NodoArbol<T> nodoArbolEliminar = buscarNodo(valor, this.raiz);
