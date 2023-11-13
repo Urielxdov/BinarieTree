@@ -59,7 +59,6 @@ public class ArbolAVL<T extends Integer> {
 
     private int altura(NodoArbol<T> r) {
         if (r != null) {
-            System.out.println(r.dato);
             return 1 + Math.max(altura(r.izq), altura(r.der));
         } else {
             return 0;
@@ -127,6 +126,10 @@ public class ArbolAVL<T extends Integer> {
 
     public void eleminarNodo(T valor) {
         NodoArbol<T> nodoArbolEliminar = buscarNodo(valor, this.raiz);
+        if(nodoArbolEliminar == null) {
+            System.out.println("Nodo no encontrado");
+            return;
+        }
         manejarEliminaciones(nodoArbolEliminar);
     }
 
@@ -151,15 +154,16 @@ public class ArbolAVL<T extends Integer> {
     }
 
     private void manejarEliminaciones(NodoArbol<T> nodo) {
+        NodoArbol<T> nodoEliminado;
         switch (numeroDeHijos(nodo)) {
             case 0:
-                eliminarNodoHoja(nodo);
+                nodoEliminado = eliminarNodoHoja(nodo);
                 break;
             case 1:
-                eliminarConUnHijo(nodo);
+                nodoEliminado = eliminarConUnHijo(nodo);
                 break;
             case 2:
-                eliminarConDosHijos(nodo);
+                nodoEliminado = eliminarConDosHijos(nodo);
                 break;
         }
         balancearRecorrido(nodo); // Posible error
@@ -178,23 +182,26 @@ public class ArbolAVL<T extends Integer> {
         return hijos;
     }
 
-    private void eliminarNodoHoja(NodoArbol<T> nodo) { // Funciona
+    private NodoArbol<T> eliminarNodoHoja(NodoArbol<T> nodo) { // Funciona
+        NodoArbol<T> referenciaDeEliminacion;
         if (nodo.padre == null) { // En este caso el nodo era la raiz
             nodo = null;
             this.raiz = null;
-            return;
+            return null; // No hay referencia
         }
         if (nodo.padre.dato < nodo.dato) { // Valor padre menor que valor hijo
             nodo.padre.der = null;
         } else { // Valor padre mayor que valor hijo
             nodo.padre.izq = null;
         }
+        referenciaDeEliminacion = nodo.padre;
         nodo.padre = null; // Eliminamos la referencia al padre
         nodo = null; // Eliminamos el nodo
+        return referenciaDeEliminacion;
     } // eliminarNodoHoja
 
     // Posiblemente el error se debe a que usas una copia, intenta no usandola
-    private void eliminarConUnHijo(NodoArbol<T> nodoPadre) {
+    private NodoArbol<T> eliminarConUnHijo(NodoArbol<T> nodoPadre) {
         NodoArbol<T> hijo; // Variable temporal de hijo que remplaza al padre
         if (nodoPadre.der != null) { // El nodo padre posee hijo derecho?
             hijo = nodoPadre.der; // Tomamos la referencia del hijo
@@ -206,6 +213,7 @@ public class ArbolAVL<T extends Integer> {
                 } else {
                     nodoPadre.padre.der = hijo; // Actualizamos el hijo del abuelo en la derecha
                 }
+
             } else { // Si no posee padre entonces es la raiz
                 this.raiz = hijo; // Redefinimos la raiz
             }
@@ -227,6 +235,7 @@ public class ArbolAVL<T extends Integer> {
         //Eliminamos las ultimas referencias del padre
         nodoPadre.padre = null;
         nodoPadre = null;
+        return hijo;
     } // eliminarConUnHijo
 
     private void eliminarRaiz(NodoArbol<T> nuevoPadre) { 
@@ -245,7 +254,7 @@ public class ArbolAVL<T extends Integer> {
      * 
      * @param nodoPadre
      */
-    private void eliminarConDosHijos(NodoArbol<T> nodoPadre) {
+    private NodoArbol<T> eliminarConDosHijos(NodoArbol<T> nodoPadre) {
         NodoArbol<T> nuevoPadre = quitarMayor(nodoPadre.izq); // Este sera el sustituto del padre
         if (nodoPadre.padre != null) { // Si posee padre no es la raiz
             // Actualizando referrencias del nuevoPadre
@@ -267,6 +276,7 @@ public class ArbolAVL<T extends Integer> {
             eliminarRaiz( nuevoPadre ); // Actualizamos con el caso especial
         }
         balancearRecorrido(nuevoPadre.izq); // Se balancea el rastro por el cual el se tomo el sucesor del padre
+        return nuevoPadre;
     }
 
     private NodoArbol<T> quitarMayor(NodoArbol<T> nodo) { // No estas teniendo en cuenta la rama izquierda
@@ -447,5 +457,14 @@ public class ArbolAVL<T extends Integer> {
         } else {
             return "";
         }
+    }
+
+    public void imprimirIzquierda(){
+        imprimirIzquierda(this.raiz);
+    }
+    public void imprimirIzquierda(NodoArbol<T> raiz) {
+        if(raiz == null) return;
+        imprimirIzquierda(raiz.izq);
+        System.out.println(raiz.dato);
     }
 }
